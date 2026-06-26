@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Чарт</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'main/style.css' %}">
+</head>
+<body>
+    <header>
+        <h1><a href="{% url 'index' %}">Музыкальный чарт SoundChartZ</a></h1>
+            <nav>
+                {% if user.is_authenticated %}
+                    Привет, {{ user.username }} | <a href="{% url 'logout' %}?next=/">Выйти</a>
+                    {% if user.is_staff %}<a href="{% url 'add_track' %}">Добавить трек</a>{% endif %}
+                {% else %}
+                    <a href="{% url 'login' %}?next={{ request.path }}">Войти</a>
+                    <a href="{% url 'register' %}">Регистрация</a>
+                {% endif %}
+            </nav>
+        <hr>
+    </header>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    <footer>
+        <hr>
+        <p>© 2026 SoundChartZ, by JIeJLMeHb, all rights not reserved</p>
+    </footer>
+    <script>
+        let currentPage = 1;
+        let isLoading = false;
+        window.addEventListener('scroll', () => {
+            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 200 && !isLoading) {
+                loadMore();
+            }
+        });
+        function loadMore() {
+            isLoading = true;
+            currentPage++;
+            fetch(`/load-more/?page=${currentPage}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.html) {
+                        document.getElementById('track-list').insertAdjacentHTML('beforeend', data.html);
+                    }
+                    if (!data.has_next) {
+                        window.removeEventListener('scroll', loadMore);
+                    }
+                    isLoading = false;
+                });
+        }
+
+        function vote(trackId, score) {
+            const formData = new FormData();
+            formData.append('score', score);
+            fetch(`/vote/${trackId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: formData
+            }).then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    const card = document.getElementById('track-' + trackId);
+                    if (card) {
+                        const ratingEl = card.querySelector('.rating-value');
+                        const votesEl = card.querySelector('.votes-count');
+                        const starsEl = card.querySelector('.stars');
+                        if (ratingEl) ratingEl.textContent = data.new_rating;
+                        if (votesEl) votesEl.textContent = 'голосов: ' + data.new_votes_count;
+                        if (starsEl) {
+                            let starsHtml = '';
+                            const rating = parseFloat(data.new_rating);
+                            for (let i = 1; i <= 10; i++) {
+                                if (i <= Math.floor(rating)) {
+                                    starsHtml += '★';
+                                } else {
+                                    starsHtml += '☆';
+                                }
+                            }
+                            starsEl.innerHTML = starsHtml;
+                        }
+                    }
+                } else {
+                    alert(data.error);
+                }
+            });
+        }
+    </script>
+</body>
+</html>

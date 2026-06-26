@@ -1,0 +1,35 @@
+{% extends "main/base.html" %}
+{% block content %}
+<div class="track-detail">
+    {% if track.cover_b64 %}
+        <img src="data:image/jpeg;base64,{{ track.cover_b64 }}" alt="Обложка" style="max-width:300px;">
+    {% elif track.cover_url %}
+        <img src="{{ track.cover_url }}" alt="Обложка" style="max-width:300px;">
+    {% endif %}
+    <h1>{{ track.artist }} - {{ track.title }}</h1>
+    <p><strong>Жанр:</strong> {{ track.genre }}</p>
+    <p><strong>Год выпуска:</strong> {{ track.release_year }}</p>
+    <p><strong>Информация об исполнителе:</strong> {{ track.artist_info }}</p>
+    <p><strong>Рейтинг:</strong> <span class="rating-value">{{ track.rating }}</span>/10 (<span class="votes-count">{{ track.votes_count }}</span> голосов)</p>
+    <div class="stars">
+        {% for i in score_range %}
+            {% if i <= track.filled_stars %}&#9733;{% else %}&#9734;{% endif %}
+        {% endfor %}
+    </div>
+    <h3>Текст песни</h3>
+    <pre>{{ track.lyrics }}</pre>
+    {% if user.is_authenticated %}
+    <div class="vote-form">
+        <label>Оценить трек:</label>
+        <select onchange="vote('{{ track.pk }}', this.value)">
+            <option value="">Выберите оценку</option>
+            {% for i in score_range %}
+                <option value="{{ i }}">{{ i }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    {% endif %}
+    <br>
+    <a href="{% url 'index' %}">Назад к чарту</a>
+</div>
+{% endblock %}

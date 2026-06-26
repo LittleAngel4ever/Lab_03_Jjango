@@ -1,0 +1,15 @@
+{% extends "main/base.html" %}
+{% block content %}
+<h2>Добавить трек</h2>
+<form method="post">
+    {% csrf_token %}
+    <label>Исполнитель: <input type="text" name="artist" required></label><br>
+    <label>Название трека: <input type="text" name="title" required></label><br>
+    <label>Жанр: <input type="text" name="genre" required></label><br>
+    <label>Год выпуска: <input type="number" name="release_year" required></label><br>
+    <label>URL обложки: <input type="url" name="cover_image_url"></label><br>
+    <label>Текст песни: <textarea name="lyrics"></textarea></label><br>
+    <label>Информация об исполнителе: <textarea name="artist_info"></textarea></label><br>
+    <button type="submit">Добавить</button>
+</form>
+{% endblock %}
