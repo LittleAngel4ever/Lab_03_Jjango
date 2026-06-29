@@ -1,0 +1,46 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <title>Чарт</title>
+</head>
+<header>
+    <div class="headerWrapper">
+        <h2>Чарт</h2>
+        <div class="header-right">
+            {% if user.is_authenticated %}
+                <span class="username">{{ user.username }}</span>
+                {% if user.is_staff or user.is_superuser %}
+                    <a href="{% url 'new' %}"><button class="addArticle">Добавить трек</button></a>
+                {% endif %}
+                <form method="POST" action="{% url 'logout' %}" class="logout-form">
+                    {% csrf_token %}
+                    <button type="submit" class="logoutBut">Выйти</button>
+                </form>
+            {% else %}
+                <a href="{% url 'login' %}"><button class="addArticle">Войти</button></a>
+            {% endif %}
+        </div>
+    </div>
+</header>
+<body>
+    <div class="wrapper">
+        {% for card in cardList%}
+        <a href="card/{{ card.id }}" class="card-container">
+            <img src="data:image/jpeg;base64,{{ card.imageBase }}" class="img">
+            <div class="info-container">
+                <p>{{ card.artist }}</p>
+                <p>{{ card.title }}</p>
+                <p>{{ card.genre }}</p>
+                <p>{{ card.release_year }}</p>
+                <p>{{ card.rating|floatformat:2 }}</p>
+                <p>{{ card.votes }}</p>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</body>
+</html>

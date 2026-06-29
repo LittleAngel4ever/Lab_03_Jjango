@@ -1,0 +1,31 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Новый трек</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/newCard.css' %}">
+</head>
+<body>
+    <div class="register-container">
+        <div id="wrapp">
+            <a href="{% url 'main' %}"><button class="backBut">Назад</button></a>
+        </div>
+        <h1>Новый трек</h1>
+        
+        {% if error %}
+          <div class="error-message">{{ error }}</div>
+        {% endif %}
+        {% if message %}
+          <div class="success-message">{{ message }}</div>
+        {% endif %}
+        
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form }}
+            <button type="submit" class="addBut">Добавить трек</button>
+        </form>
+    </div>
+</body>
+</html>

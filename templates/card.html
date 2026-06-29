@@ -1,0 +1,51 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/card.css' %}">
+    <title>{{ track.title }}</title>
+</head>
+<body>
+    <a href="{% url 'main' %}" class="back-button">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        Назад
+    </a>
+
+    <img src="data:image/jpeg;base64,{{ track.imageBase }}" class="img">
+    <h1>{{ track.artist }}</h1>
+    <p>{{ track.title }}</p>
+    <p>{{ track.genre }}</p>
+    <p>{{ track.release_year }}</p>
+    
+    <div class="rating-container">
+        <h3>Рейтинг: {{ track.rating|floatformat:2 }}</h3>
+        <p>Всего голосов: {{ track.votes }}</p>
+        {% if user_vote %}
+            <div class="already-voted">
+                <p>Ваша оценка:</p>
+                <div class="selected-stars">
+                    {% for i in score_range %}
+                        <span class="selected-star {% if i <= user_vote %}active{% endif %}">★</span>
+                    {% endfor %}
+                </div>
+                <p>Вы уже проголосовали за этот трек</p>
+            </div>
+        {% else %}
+            <p>Оцените трек:</p>
+            <form method="POST" class="stars-form">
+                {% csrf_token %}
+                {% for i in score_range reversed %}
+                    <input type="radio" name="score" value="{{ i }}" id="star{{ i }}" class="star-radio" required>
+                    <label for="star{{ i }}" class="star-label">★</label>
+                {% endfor %}
+                <button type="submit" class="vote-button">Оценить</button>
+            </form>
+         {% endif %}
+    </div>
+</body>
+</html>
